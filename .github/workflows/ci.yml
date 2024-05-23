@@ -40,7 +40,7 @@ jobs:
       - name: Run tests
         run: tox
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
 
   test_success:
     # this aggregates success state of all jobs listed in `needs`
