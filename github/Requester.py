@@ -923,7 +923,6 @@ class Requester:
         else:
             o = urllib.parse.urlparse(url)
             
-            assert o.port == self.__port, o.port
             url = o.path
             if o.query != "":
                 url += f"?{o.query}"
