@@ -158,11 +158,17 @@ class PaginatedList(PaginatedListBase[T]):
         firstHeaders: Optional[Dict[str, Union[str, int]]] = None,
         attributesTransformer: Optional[Callable[[Dict[str, Any]], Dict[str, Any]]] = None,
     ):
+        # Enforce Consistency between first URL and requester base - enables correct proxy behaviour
+        if requester.base_url not in firstUrl:
+            corrected_first_url = firstUrl.replace("https://api.github.com", requester.base_url)
+        else:
+            corrected_first_url = firstUrl
+
         self.__requester = requester
         self.__contentClass = contentClass
-        self.__firstUrl = firstUrl
+        self.__firstUrl = corrected_first_url
         self.__firstParams = firstParams or ()
-        self.__nextUrl = firstUrl
+        self.__nextUrl = corrected_first_url
         self.__nextParams = firstParams or {}
         self.__headers = headers
         self.__list_item = list_item
@@ -205,6 +211,9 @@ class PaginatedList(PaginatedListBase[T]):
                 links = self.__parseLinkHeader(headers)
                 lastUrl = links.get("last")
                 if lastUrl:
+                    # Enforce Consistency between URL and requester base - enables correct proxy behaviour
+                    if self.__requester.base_url not in lastUrl:
+                        lastUrl = lastUrl.replace("https://api.github.com", self.__requester.base_url)
                     self.__totalCount = int(parse_qs(lastUrl)["page"][0])
                 else:
                     self.__totalCount = 0
@@ -235,6 +244,9 @@ class PaginatedList(PaginatedListBase[T]):
         self._reversed = True
         lastUrl = self._getLastPageUrl()
         if lastUrl:
+            # Enforce Consistency between URL and requester base - enables correct proxy behaviour
+            if self.__requester.base_url not in lastUrl:
+                lastUrl = lastUrl.replace("https://api.github.com", self.__requester.base_url)
             self.__nextUrl = lastUrl
 
     def _couldGrow(self) -> bool:

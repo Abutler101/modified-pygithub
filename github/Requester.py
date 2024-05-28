@@ -838,8 +838,10 @@ class Requester:
 
         try:
             original_cnx = cnx
-            if cnx is None:
+            if cnx is None or cnx.host != self.hostname:
                 cnx = self.__createConnection()
+            if self.__prefix not in url:
+                url = f"{self.__prefix}{url}"
             cnx.request(verb, url, input, requestHeaders)
             response = cnx.getresponse()
 
